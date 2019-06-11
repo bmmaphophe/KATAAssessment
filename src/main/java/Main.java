@@ -1,9 +1,9 @@
 
 import co.za.kataassessment.utility.JsonUtility;
 import co.za.kataassessment.json.model.Address;
-import co.za.kataassessment.utility.HighestCommonFactor;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import co.za.kataassessment.utility.Jsonloader;
+
+import java.util.List;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -17,15 +17,23 @@ import java.io.FileReader;
 public class Main {
 
     public static void main(String[] args) {
+
+//        int[] values = {};
+//        HighestCommonFactor hcf = new HighestCommonFactor();
+//        System.out.println("Highest Common Factor: " + hcf.getHCF(values) + "\n\n");
+
         
-        int[] values = {1701,3768,96};
-        int size = values.length;
-        HighestCommonFactor hcf = new HighestCommonFactor();
-        System.out.println("Highest Common Factor: " + hcf.getHCF(values, size)+ "\n\n") ;
-        
-        JsonUtility json = new JsonUtility();
-        json.loadJson();
-       
+//        // this will the json
+//        Jsonloader jsonloader = new Jsonloader();
+//        
+//        List<Address> addresses = jsonloader.loadJson("addresses.json");
+//
+//        JsonUtility jsonUtility = new JsonUtility();
+//
+//        jsonUtility.formatType(addresses);
+//        
+//        System.out.println(jsonUtility.formatType(addresses));
+
     }
 
 }

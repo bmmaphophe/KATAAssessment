@@ -5,9 +5,7 @@
  */
 package co.za.kataassessment.json.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Date;
-
 /**
  *
  * @author brookmaphophe
@@ -23,7 +21,8 @@ public class Address {
     private Date lastUpdated ;
     private String suburbOrDistrict;
 
-    public Address() {
+    
+      public Address() {
         this.id = 0;
         this.type = new CodeAndName();
         this.addressLineDetail = new AddressLineDetail();
@@ -34,7 +33,7 @@ public class Address {
         this.lastUpdated = new Date();
         this.suburbOrDistrict = "";
     }
-     
+
     /**
      * @return the id
      */

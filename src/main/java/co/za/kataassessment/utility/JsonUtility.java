@@ -4,112 +4,179 @@
  * and open the template in the editor.
  */
 package co.za.kataassessment.utility;
-
-
 import co.za.kataassessment.json.model.Address;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.io.IOException;
 
-
-
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  *
  * @author brookmaphophe
  */
 public class JsonUtility {
 
+    private static final Logger LOGGER = Logger.getLogger("JsonUtility");
+
     ObjectMapper objectMapper = new ObjectMapper();
-    
-    String type = "business Address";
 
-    public void loadJson() {
+    /**
+     * @param addresses
+     *
+     * @throws Exception
+     *
+     * @return void 
+     *
+     */
+    public String formatType(List<Address>addresses) {
+        StringBuilder value = new StringBuilder();
         try {
-            
-            Address[] addresses = objectMapper.readValue(new File("addresses.json"), Address[].class); 
+            if (addresses == null || addresses.isEmpty()) {
+                throw new Exception("Addresses array is null or empty");
+            }
+            // formating the requered fields
+            for (Address address : addresses) {
+                
+                value.append("Type :").append(address.getAddressLineDetail().getLine1()).append(" -city ").append(address.getCityOrTown()).append(" -province/state ").append(address.getProvinceOrState().getName()).append("  -postal code  ").append(address.getPostalCode()).append("  -country  ").append(address.getCountry().getName()).append("\n\n");
+            }
 
-            formatType(addresses);
-            
-            prettyPrintAddress(addresses);
-            
-            chooseAddresType(addresses,type);
-            
-            validateAddress(addresses);
-            
-            isJsonValid(addresses);
-            
-        } catch (IOException e) {
-            e.printStackTrace();
+            return value.toString();
+        } catch (Exception e) {
+
+            LOGGER.log(Level.WARNING, e.toString());
         }
+        return "";
     }
 
-    private void formatType(Address[] addresses) {
+    /**
+     * @param addresses
+     *
+     * This Method is to formats the JSon
+     * 
+     * @throws Exception
+     *
+     * @return void 
+     *
+     */
+    public String prettyPrintAddress(List<Address> addresses) {
+        String formatedJson = "";
         try {
+            if (addresses == null || addresses.isEmpty()) {
+                throw new Exception("Addresses array is null or empty");
+            }
+            // formating the json
+            formatedJson = objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT).writerWithDefaultPrettyPrinter().writeValueAsString(addresses);
+        } catch (Exception e) {
+
+            LOGGER.log(Level.WARNING, e.toString());
+        }
+
+        return formatedJson;
+    }
+
+    /**
+     * @param addresses 
+     * @param addressType
+     *
+     * This is to display the address
+     * 
+     * 
+     *
+     * @return void
+     *
+     */
+    public String chooseAddresType(List<Address> addresses, String addressType) {
+
+        String jsonStr = "";
+        try {
+            if (addresses == null || addresses.isEmpty()) {
+                throw new Exception("Addresses array is null or empty");
+            }
+
             for (Address address : addresses) {
-                System.out.println("Type :" + address.getAddressLineDetail().getLine1() + " -city " + address.getCityOrTown() + " -province/state " + address.getProvinceOrState().getName() + "  -postal code  " + address.getPostalCode() + "  -country  " + address.getCountry().getName());
+                // get the Address that matches the address type
+                if (address.getType().getName().toUpperCase().equals(addressType.toUpperCase())) {
+                    jsonStr = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(address);
+                    break;
+                }
             }
 
         } catch (Exception e) {
 
+            LOGGER.log(Level.WARNING, e.toString());
         }
-
+        return jsonStr;
     }
 
-    private void prettyPrintAddress(Address[] addresses) throws JsonProcessingException {
-        
-        String jsonStr = objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT).writerWithDefaultPrettyPrinter().writeValueAsString(addresses);
-        System.out.println("\n\n "+jsonStr);
-    }
-    
-    private void chooseAddresType(Address[] addresses , String addressType) throws JsonProcessingException{
-        
-        for(Address address: addresses){
-            if(address.getType().getName().toUpperCase().equals(addressType.toUpperCase())){
-                String jsonStr = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(address);
-                System.out.println(" CHOOSEN ADDRESS: \n\n "+jsonStr + "\n");
-                break;
-            }
-        }
-    }
-    
-    
-    private void validateAddress(Address[] addresses){
-        boolean isAddressValid = true;
-        for(Address address: addresses){
-            
-            if("".equals(address.getPostalCode()) || !NumberUtils.isNumber(address.getPostalCode())){
-                isAddressValid = false;
-            }
-            if(address.getCountry().getCode().toUpperCase().contains("ZA")){
-                if(address.getProvinceOrState()== null){
-                   isAddressValid = false;
-                }
-            } 
-            if(address.getAddressLineDetail().getLine1() == null){
-                isAddressValid = false;
-            }
-               
-            if(!isAddressValid){
-                System.out.println("This Address is Not Valid : " + address.getType().getName());
-            }
-        }
-    }
-    
-    private void isJsonValid(Address[] addresses) throws JsonProcessingException{
-
-        String jsonStr = objectMapper.writeValueAsString(addresses);
+    /**
+     * @param addresses
+     *
+     * This Method Checks if Address are valid
+     * 
+     * 
+     *
+     * @return boolean
+     *
+     */
+    public boolean areAddressesValid(List<Address> addresses) {
         try {
-           objectMapper.readTree(jsonStr);
-        } catch (IOException ex) {
-            System.out.println("This Json File id not Valid: " + ex);
+            if (addresses == null || addresses.isEmpty()) {
+                throw new Exception("Addresses array is null or empty");
+            }
+
+            for (Address address : addresses) {
+                // Checking if the Postal code is not empty or null
+                if ("".equals(address.getPostalCode()) || !NumberUtils.isNumber(address.getPostalCode())) {
+                    throw new Exception("PostalCode is null or empty");
+                }
+                // Checking if the code has ZA
+                if (address.getCountry().getCode().toUpperCase().contains("ZA")) {
+                    if (address.getProvinceOrState().getName() == null) {
+                        throw new Exception("Code is not ZA");
+                    }
+                }
+
+                // Checking if AddressLineDetail  is not null
+                if (address.getAddressLineDetail().getLine1() == null || address.getAddressLineDetail().getLine2() == null) {
+                    throw new Exception("AddressLineDetail is null ");
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, e.toString());
+            return false;
         }
- 
+
+        return true;
+
     }
-    
-    
+
+    /**
+     * @param addresses
+     * 
+     *
+     * This method check if the JSon is Valid
+     *
+     * @return boolean
+     *
+     */
+    public boolean isJsonValid(List<Address> addresses) {
+
+        try {
+             if (addresses == null || addresses.isEmpty()) {
+                throw new Exception("Addresses array is null or empty");
+            }
+            // Attempt write and read to check if JSon is valid
+            String jsonStr = objectMapper.writeValueAsString(addresses);
+            objectMapper.readTree(jsonStr);
+
+        } catch (Exception ex) {
+
+            LOGGER.log(Level.WARNING, ex.toString());
+            return false;
+        }
+        return true;
+    }
 
 }

@@ -11,10 +11,13 @@ package co.za.kataassessment.utility;
  */
 public class NumberUtils {
     
-    
+    /**
+     * @param value 
+     * 
+     * This method is to check if the String is a number
+     * @return 
+     **/
     public static boolean  isNumber(String value){
-        
-       
         return value.matches("-?\\d+(\\.\\d+)?");
     }
 }
